@@ -1,5 +1,4 @@
 import { Link, Outlet } from "react-router-dom";
-import "./rootLayout.css";
 import { ClerkProvider, SignedIn, UserButton } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -14,19 +13,8 @@ const RootLayout = () => {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
       <QueryClientProvider client={queryClient}>
-        <div className="rootLayout">
-          <header>
-            <Link to="/" className="logo">
-              <img src="/logo.png" alt="" />
-              <span>BHAI AI</span>
-            </Link>
-            <div className="user">
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </div>
-          </header>
-          <main>
+        <div className="flex flex-col h-screen overflow-hidden bg-background-dark text-slate-100 font-display">
+          <main className="flex-1 overflow-hidden flex flex-col">
             <Outlet />
           </main>
         </div>

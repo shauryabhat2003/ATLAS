@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./newPrompt.css";
 import Upload from "../upload/Upload";
 import { IKImage } from "imagekitio-react";
 import model from "../../lib/gemini";
@@ -36,7 +35,7 @@ const NewPrompt = ({ data }) => {
         history: initialHistory,
         generationConfig: { temperature: 0.9 }
       });
-      
+
       setChatInitialized(true);
     } catch (error) {
       console.error("Chat initialization error:", error);
@@ -118,9 +117,7 @@ const NewPrompt = ({ data }) => {
         setAnswer(accumulatedText);
       }
 
-      if (!isInitial) {
-        mutation.mutate();
-      }
+      mutation.mutate();
     } catch (err) {
       console.error("Chat error:", err);
       setAnswer("Sorry, there was an error processing your request.");
@@ -138,30 +135,62 @@ const NewPrompt = ({ data }) => {
 
   return (
     <>
-      {img.isLoading && <div className="">Loading...</div>}
+      {img.isLoading && <div className="text-slate-400 text-sm py-4">Loading image...</div>}
       {img.dbData?.filePath && (
         <IKImage
           urlEndpoint={import.meta.env.VITE_IMAGE_KIT_ENDPOINT}
           path={img.dbData?.filePath}
           width="380"
           transformation={[{ width: 380 }]}
+          className="rounded-xl mb-4"
         />
       )}
-      {question && <div className="message user">{question}</div>}
-      {answer && (
-        <div className="message">
-          <Markdown>{answer}</Markdown>
+      {question && (
+        <div className="flex items-start gap-4 justify-end">
+          <div className="flex flex-col gap-2 max-w-[85%] items-end">
+            <div className="user-gradient p-4 rounded-xl rounded-tr-none shadow-xl shadow-primary/20">
+              <p className="text-[15px] leading-relaxed text-white">
+                {question}
+              </p>
+            </div>
+          </div>
+          <div className="size-8 rounded-lg bg-slate-700 overflow-hidden shrink-0 mt-1 shadow-md">
+            <span className="material-symbols-outlined text-white text-lg m-1">person</span>
+          </div>
         </div>
       )}
+      {answer && (
+        <div className="flex items-start gap-4">
+          <img src="/logo.png" alt="Atlas" className="size-8 shrink-0 mt-1" />
+          <div className="flex flex-col gap-2 max-w-[85%]">
+            <div className="bg-surface-dark/50 dark:bg-slate-800/40 p-4 rounded-xl rounded-tl-none shadow-sm border border-white/5">
+              <div className="text-[15px] leading-relaxed text-slate-800 dark:text-slate-200 prose prose-invert max-w-none">
+                <Markdown>{answer}</Markdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="endChat" ref={endRef}></div>
-      <form className="newForm" onSubmit={handleSubmit} ref={formRef}>
-        <Upload setImg={setImg} />
-        <input id="file" type="file" multiple={false} hidden />
-        <input type="text" name="text" placeholder="Ask anything..." />
-        <button>
-          <img src="/arrow.png" alt="" />
-        </button>
-      </form>
+
+      <div className="w-full max-w-4xl mx-auto absolute bottom-6 left-1/2 -translate-x-1/2 z-20 px-8">
+        <form onSubmit={handleSubmit} ref={formRef} className="glass-effect rounded-full p-2 pl-4 pr-2 shadow-2xl shadow-black/50 border border-primary/20 flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-primary/40 bg-surface-dark">
+          <Upload setImg={setImg} />
+          <input
+            type="text"
+            name="text"
+            placeholder="Message Atlas..."
+            className="flex-1 bg-transparent border-none focus:ring-0 text-[15px] placeholder:text-slate-500 text-slate-100 outline-none"
+          />
+          <div className="flex items-center gap-1">
+            <button type="submit" className="size-10 user-gradient rounded-full flex items-center justify-center shadow-lg shadow-primary/40 hover:scale-105 transition-transform">
+              <span className="material-symbols-outlined text-white fill-1">arrow_upward</span>
+            </button>
+          </div>
+        </form>
+        <p className="text-center text-[10px] text-slate-500 mt-4 font-medium hidden md:block">Atlas can make mistakes. Consider checking important information.</p>
+      </div>
     </>
   );
 };
