@@ -2,6 +2,7 @@ services:
   - type: web
     name: bhai-backend
     env: node
+    plan: free
     buildCommand: cd bhai-backend && npm install
     startCommand: cd bhai-backend && node index.js
     envVars:
@@ -23,6 +24,7 @@ services:
   - type: web
     name: bhai-frontend
     env: node
+    plan: free
     buildCommand: cd client && npm install && npm run build
     startCommand: cd client && npm run preview
     envVars:
