@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: bhai-backend
+    name: ATLAS-backend
     env: node
     plan: free
     buildCommand: cd bhai-backend && npm install
@@ -22,7 +22,7 @@ services:
         sync: false
 
   - type: web
-    name: bhai-frontend
+    name: ATLAS-frontend
     env: node
     plan: free
     buildCommand: cd client && npm install && npm run build
