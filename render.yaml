@@ -22,7 +22,7 @@ services:
         sync: false
 
   - type: web
-    name: ATLAS-frontend
+    name: atlas
     env: node
     plan: free
     buildCommand: cd client && npm install && npm run build
