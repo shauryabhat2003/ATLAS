@@ -14,13 +14,10 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("ATLAS Backend is running!");
-});
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Middleware MUST come before routes
 app.use(
   cors({
     origin: process.env.CLIENT_URL
@@ -31,6 +28,11 @@ app.use(
 );
 app.use(express.json());
 app.use(clerkMiddleware());
+
+// Health check (after CORS so it gets proper headers)
+app.get("/", (req, res) => {
+  res.send("ATLAS Backend is running!");
+});
 
 const connect = async () => {
   try {
