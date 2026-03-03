@@ -6,7 +6,7 @@ import ImageKit from "imagekit";
 import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import admin from "./firebase-admin-config.js";
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -17,7 +17,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware MUST come before routes
+// Middleware
 app.use(
   cors({
     origin: process.env.CLIENT_URL
@@ -27,9 +27,26 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(clerkMiddleware());
 
-// Health check (after CORS so it gets proper headers)
+// Firebase Auth middleware - replaces Clerk's requireAuth()
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send("No token provided");
+  }
+
+  const token = authHeader.split("Bearer ")[1];
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.auth = { userId: decodedToken.uid };
+    next();
+  } catch (err) {
+    console.error("Token verification failed:", err.message);
+    res.status(401).send("Invalid token");
+  }
+};
+
+// Health check
 app.get("/", (req, res) => {
   res.send("ATLAS Backend is running!");
 });
@@ -54,7 +71,7 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
-app.post("/api/chats", requireAuth(), async (req, res) => {
+app.post("/api/chats", verifyToken, async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
 
@@ -96,16 +113,16 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
           },
         }
       );
-
-      res.status(201).send(newChat._id);
     }
+
+    res.status(201).send(newChat._id);
   } catch (err) {
     console.log(err);
     res.status(500).send("Error creating chat!");
   }
 });
 
-app.get("/api/userchats", requireAuth(), async (req, res) => {
+app.get("/api/userchats", verifyToken, async (req, res) => {
   const userId = req.auth.userId;
 
   try {
@@ -118,7 +135,7 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/chats/:id", requireAuth(), async (req, res) => {
+app.get("/api/chats/:id", verifyToken, async (req, res) => {
   const userId = req.auth.userId;
 
   try {
@@ -131,7 +148,7 @@ app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   }
 });
 
-app.put("/api/chats/:id", requireAuth(), async (req, res) => {
+app.put("/api/chats/:id", verifyToken, async (req, res) => {
   const userId = req.auth.userId;
 
   const { question, answer, img } = req.body;
@@ -165,13 +182,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
 });
-
-// PRODUCTION
-// app.use(express.static(path.join(__dirname, "../client/dist")));
-
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-// });
 
 app.listen(port, () => {
   connect();
