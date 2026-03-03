@@ -3,25 +3,29 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import Markdown from "react-markdown";
 import { IKImage } from "imagekitio-react";
+import { useAuth } from "../../context/AuthContext";
 
 const ChatPage = () => {
   const path = useLocation().pathname;
   const chatId = path.split("/").pop();
+  const { getToken } = useAuth();
 
   const { isPending, error, data } = useQuery({
     queryKey: ["chat", chatId],
-    queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_URL}/api/chats/${chatId}`, {
-        credentials: "include",
-      }).then((res) => {
-        if (!res.ok) {
-          throw new Error(`Error: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      }),
+    queryFn: async () => {
+      const token = await getToken();
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chats/${chatId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status} ${res.statusText}`);
+      }
+      return res.json();
+    },
   });
 
-  console.log(data);
   if (error) {
     console.error("Error fetching chat:", error);
   }

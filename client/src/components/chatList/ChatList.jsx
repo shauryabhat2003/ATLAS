@@ -1,15 +1,21 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { SignedIn, UserButton, useUser } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 
 const ChatList = () => {
-  const { user } = useUser();
+  const { user, getToken, signOut } = useAuth();
+
   const { isPending, error, data } = useQuery({
     queryKey: ["userChats"],
-    queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_URL}/api/userchats`, {
-        credentials: "include",
-      }).then((res) => res.json()),
+    queryFn: async () => {
+      const token = await getToken();
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/userchats`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.json();
+    },
   });
 
   return (
@@ -52,16 +58,20 @@ const ChatList = () => {
 
       <div className="p-4 border-t border-primary/10 bg-black/20 flex flex-col gap-4">
         <div className="flex items-center gap-3 px-2">
-          <SignedIn>
-            <UserButton />
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-slate-200">{user?.firstName || "User"} {user?.lastName || ""}</span>
-              <span className="text-[10px] text-slate-500 hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">settings</span>
-                Manage Account
-              </span>
-            </div>
-          </SignedIn>
+          {/* User Avatar */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brandBlue to-brandPink flex items-center justify-center text-white text-sm font-bold shrink-0">
+            {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+          </div>
+          <div className="flex flex-col flex-1 min-w-0">
+            <span className="text-sm font-semibold text-slate-200 truncate">{user?.displayName || "User"}</span>
+            <button
+              onClick={signOut}
+              className="text-[10px] text-slate-500 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1 w-fit"
+            >
+              <span className="material-symbols-outlined text-[12px]">logout</span>
+              Sign Out
+            </button>
+          </div>
         </div>
       </div>
     </aside>

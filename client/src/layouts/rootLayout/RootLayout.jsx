@@ -1,17 +1,12 @@
-import { Link, Outlet } from "react-router-dom";
-import { ClerkProvider, SignedIn, UserButton } from "@clerk/clerk-react";
+import { Outlet } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key");
-}
+import { AuthProvider } from "../../context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const RootLayout = () => {
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <div className="flex flex-col h-screen overflow-hidden bg-background-dark text-slate-100 font-display">
           <main className="flex-1 overflow-hidden flex flex-col">
@@ -19,7 +14,7 @@ const RootLayout = () => {
           </main>
         </div>
       </QueryClientProvider>
-    </ClerkProvider>
+    </AuthProvider>
   );
 };
 

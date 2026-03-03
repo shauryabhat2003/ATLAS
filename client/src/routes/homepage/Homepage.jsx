@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 import ParticleBackground from "../../components/particleBackground/ParticleBackground";
 
 const Homepage = () => {
+  const { isSignedIn } = useAuth();
+
   return (
     <div className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-[#08080f] text-white font-display antialiased">
 
@@ -16,21 +18,18 @@ const Homepage = () => {
           <span className="text-xl font-black tracking-tight uppercase group-hover:text-brandBlue transition-colors">ATLAS</span>
         </Link>
         <div className="flex items-center gap-6">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Sign In</button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="bg-gradient-to-r from-brandBlue to-brandPink text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-brandPink/20 hover:scale-105 transition-transform">
+          {!isSignedIn ? (
+            <>
+              <Link to="/sign-in" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Sign In</Link>
+              <Link to="/sign-up" className="bg-gradient-to-r from-brandBlue to-brandPink text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-brandPink/20 hover:scale-105 transition-transform">
                 Get Started
-              </button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
+              </Link>
+            </>
+          ) : (
             <Link to="/dashboard" className="bg-gradient-to-r from-brandBlue to-brandPink text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-brandPink/20 hover:scale-105 transition-transform">
               Dashboard
             </Link>
-          </SignedIn>
+          )}
         </div>
       </nav>
 
@@ -40,11 +39,6 @@ const Homepage = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-3xl opacity-20 -z-10 transform -rotate-2"></div>
 
         <div className="text-center z-10 max-w-4xl">
-          {/* Version Tag */}
-          {/* <div className="inline-block px-4 py-1.5 mb-8 rounded-full border border-white/10 bg-white/5 text-xs font-bold tracking-widest uppercase text-brandBlue animate-pulse">
-            Version 2.0 Now Live
-          </div> */}
-
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-tight">
             <span className="bg-gradient-to-r from-brandBlue to-brandPink bg-clip-text text-transparent">ATLAS</span>
           </h1>
@@ -56,25 +50,16 @@ const Homepage = () => {
           {/* CTA Block */}
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <SignedIn>
+              {isSignedIn ? (
                 <Link to="/dashboard" className="bg-gradient-to-r from-brandBlue to-brandPink px-10 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-2xl shadow-brandBlue/30 hover:shadow-brandPink/40">
                   Enter Workspace
                 </Link>
-              </SignedIn>
-              <SignedOut>
-                <SignUpButton mode="modal">
-                  <button className="bg-gradient-to-r from-brandBlue to-brandPink px-10 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-2xl shadow-brandBlue/30 hover:shadow-brandPink/40">
-                    Get Started Now
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              {/* <SignInButton mode="modal">
-                <button className="px-8 py-4 rounded-full border border-white/10 bg-white/5 text-lg font-bold hover:bg-white/10 transition-colors">
-                  View Demo
-                </button>
-              </SignInButton> */}
+              ) : (
+                <Link to="/sign-up" className="bg-gradient-to-r from-brandBlue to-brandPink px-10 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-2xl shadow-brandBlue/30 hover:shadow-brandPink/40">
+                  Get Started Now
+                </Link>
+              )}
             </div>
-            {/* <p className="text-xs text-gray-600 uppercase tracking-widest font-semibold mt-2">No credit card required</p> */}
           </div>
         </div>
 
@@ -135,18 +120,8 @@ const Homepage = () => {
       <footer className="border-t border-white/5 py-12 px-6 relative z-10 bg-[#08080f]/50">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
-            {/* <div className="w-6 h-6 flex items-center justify-center bg-gray-500 rounded-sm"> */}
-            {/* <svg className="w-4 h-4 text-[#08080f]" fill="currentColor" viewBox="0 0 24 24"> */}
-            {/* <path d="M12 2L2 19.77h20L12 2zm0 4.6l6.43 11.37H5.57L12 6.6z"></path> */}
-            {/* </svg> */}
-            {/* </div> */}
             © shauryabhat2003
           </div>
-          {/* <div className="flex items-center gap-6 text-xs font-medium text-gray-500 uppercase tracking-widest">
-            <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
-            <span className="text-gray-700">|</span>
-            <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
-          </div> */}
           <div className="flex gap-4">
             <a className="text-gray-500 hover:text-white transition-colors" href="#"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg></a>
             <a className="text-gray-500 hover:text-white transition-colors" href="#"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.416-4.041-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg></a>

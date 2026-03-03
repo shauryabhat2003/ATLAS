@@ -1,11 +1,10 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
 import ChatList from "../../components/chatList/ChatList";
 
 const DashboardLayout = () => {
   const { userId, isLoaded } = useAuth();
-
   const navigate = useNavigate();
 
   useEffect(() => {
